@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmailVerificationController;
+use App\Http\Controllers\PasswordResetController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -14,6 +16,12 @@ Route::middleware('guest')->group(function() {
     Route::post('/login', [AuthController::class, 'login'])->name('login.post')->middleware('throttle:login');
     Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.post');
+
+    Route::get('/forgot-passwoed', [PasswordResetController::class, 'showPasswordResetRequestForm'])->name('passwoed.request');
+    Route::post('/forgot-passwoed', [PasswordResetController::class, 'sendPasswordResetEmail'])->middleware('throttle:password-reset-requst')->name('passwoed.email');
+
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'showPasswordResetForm'])->name('passwoed.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->middleware('throttle:password-reset')->name('password.store');
 });
 
 Route::middleware('auth')->group(function() {
@@ -26,6 +34,7 @@ Route::middleware('auth')->group(function() {
 Route::middleware('auth', 'verified')->group(function() {
     
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::resource('categories', CategoryController::class);
 
     Route::redirect('/', '/dashboard');
 });

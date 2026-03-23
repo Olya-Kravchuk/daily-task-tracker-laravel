@@ -1,5 +1,5 @@
 
-3:15 00
+3:19 00
 curl -s https://laravel.build/daily-task-tracker-laravel | bash
 
 cd daily-task-tracker-Laravel/
@@ -43,6 +43,17 @@ php artisan make:controller EmailVerificationController
 npm install alpinejs -D
 
 php artisan make:controller DashboardController
+
+php artisan make:controller PasswordResetController
+
+php artisan make:request PasswordResetRequest
+php artisan make:request ResetPasswordRequest
+
+php artisan auth:clear-resets
+
+php artisan make:controller CategoryController --resource
+
+php artisan route:list
 
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
