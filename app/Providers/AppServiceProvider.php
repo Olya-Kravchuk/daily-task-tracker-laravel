@@ -3,8 +3,13 @@
 namespace App\Providers;
 
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\ValidationException;
@@ -70,11 +75,17 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Password::default(function() {
-            if ($this->app->isLocal()) {
+            // if ($this->app->isLocal()) {
+            if (App::isLocal()) {
                 return Password::min(8);
             }
 
             return Password::min(8)->mixedCase()->uncompromised()->letters()->numbers()->symbols();
         });
+
+        DB::listen(function(QueryExecuted $query) {
+            Log::info($query->sql, ['bindings' => $query->bindings, 'time' => $query->time]);
+        });
+        // JsonResource::withoutWrapping();
     }
 }

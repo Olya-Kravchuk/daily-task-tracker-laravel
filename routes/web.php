@@ -24,17 +24,17 @@ Route::middleware('guest')->group(function() {
     Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->middleware('throttle:password-reset')->name('password.store');
 });
 
-Route::middleware('auth')->group(function() {
+Route::middleware(['auth'])->group(function() {
     Route::get('/email/verify', [EmailVerificationController::class, 'index'])->name('verification.notice');
     Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->middleware('signed', 'throttle:10,1')->name('verification.verify');
     Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])->middleware(['auth'])->name('verification.send');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
-Route::middleware('auth', 'verified')->group(function() {
+Route::middleware(['auth', 'verified'])->group(function() {
     
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::resource('categories', CategoryController::class);
+    Route::resource('categories', CategoryController::class)->except(['show'])->middlewareFor(['edit', 'updated', 'destroy'], 'can:manage,category');
 
     Route::redirect('/', '/dashboard');
 });

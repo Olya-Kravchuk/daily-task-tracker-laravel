@@ -1,5 +1,8 @@
 
-3:19 00
+02:20 00
+
+https://www.youtube.com/watch?v=WbcVKeOE6Vk
+
 curl -s https://laravel.build/daily-task-tracker-laravel | bash
 
 cd daily-task-tracker-Laravel/
@@ -51,9 +54,21 @@ php artisan make:request ResetPasswordRequest
 
 php artisan auth:clear-resets
 
-php artisan make:controller CategoryController --resource
+php artisan make:controller CategoryController --resource --model=Category --requests
 
 php artisan route:list
+
+php artisan make:migration add_uuid_to_tables
+
+php artisan migrate:fresh
+
+php artisan db:seed
+
+php artisan make:policy CategoryPolicy --model=Category
+
+php artisan make:resource CategoryResource
+
+php artisan make:resource CategoryCollection
 
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 

@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
+ * @property string $uuid
  * @property int $user_id
  * @property int|null $category_id
  * @property string $title
@@ -35,6 +37,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Task extends Model
 {
+    use HasUuids;
+    
     protected function casts(): array
     {
         return [
@@ -43,7 +47,14 @@ class Task extends Model
             'task_date' => 'datetime',
         ];
     }
-
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
+    }
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
