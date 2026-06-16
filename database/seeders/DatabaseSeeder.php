@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
-use App\Models\Category;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Category;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class DatabaseSeeder extends Seeder
 {
@@ -39,13 +41,21 @@ class DatabaseSeeder extends Seeder
         //     );
 
         // }
-        for ($i = 0; $i < 50; $i++) {
-            Category::create(
-                [
-                    'name' => 'Category' . ($i + 1),
-                    'user_id' => 1
-                ]
-            );
-        }
+        // for ($i = 0; $i < 50; $i++) {
+        //     Category::create(
+        //         [
+        //             'name' => 'Category' . ($i + 1),
+        //             'user_id' => 1
+        //         ]
+        //     );
+        // }
+        $this->call(
+            [
+                UserSeeder::class,
+                CategorySeeder::class,
+                TaskSeeder::class,
+                RecurringTaskSeeder::class,
+            ]
+        );
     }
 }

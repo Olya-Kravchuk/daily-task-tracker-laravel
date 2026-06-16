@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use SensitiveParameter;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Auth\Events\PasswordReset;
 use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Requests\SendPasswordResetEmailRequest;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Illuminate\Auth\Events\PasswordReset;
-use SensitiveParameter;
 
 class PasswordResetController extends Controller
 {
@@ -18,6 +20,7 @@ class PasswordResetController extends Controller
     {
         return view('auth.forgot-password');
     }
+
     public function sendPasswordResetEmail(SendPasswordResetEmailRequest $request)
     {
         $email = $request->string('email');
@@ -26,6 +29,7 @@ class PasswordResetController extends Controller
 
         return back()->with('status', 'If an account with this email exists, we will send a password reset link.');
     }
+
     public function showPasswordResetForm(#[SensitiveParameter] string $token, Request $request)
     {
         return view('auth.reset-password', [
@@ -34,11 +38,12 @@ class PasswordResetController extends Controller
             'email' => $request->input('email'),
         ]);
     }
+
     public function resetPassword(ResetPasswordRequest $request)
     {
         $requestData = $request->validated();
 
-        $status = Password::reset($requestData, function(User $user, #[SensitiveParameter] string $newPassword) {
+        $status = Password::reset($requestData, function(User $user, #[SensitiveParameter] string $newPassword): void {
             $user->password = Hash::make($newPassword);
             $user->remember_token = Str::random(60);
             $user->save();
@@ -48,7 +53,8 @@ class PasswordResetController extends Controller
         if ($status === Password::PASSWORD_RESET) {
             return redirect()->route('login')->with('status', __($status));
         }
-        logger()->debug('Passwort reset failed', ['status' => $status, 'email' =>$requestData['email'] ?? null]);
+        logger()->debug('Passwort reset failed', ['status' => $status, 'email' => $requestData['email'] ?? null]);
+
         return back()->withInput($request->only('email'))->withErrors(['email', 'Failed to reset your password.']);
     }
 }

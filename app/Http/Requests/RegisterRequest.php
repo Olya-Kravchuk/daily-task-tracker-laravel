@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\ValidationRule;
 
 class RegisterRequest extends FormRequest
 {
@@ -18,17 +21,18 @@ class RegisterRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'string', 'max:255', 'unique:users,email'],
-            // 'password' => ['required', 'string', 'confirmed', Password::min(8)->mixedCase()->uncompromised()->letters()->numbers()->symbols()],            
-            'password' => ['required', 'string', 'confirmed', Password::defaults()],        
+            // 'password' => ['required', 'string', 'confirmed', Password::min(8)->mixedCase()->uncompromised()->letters()->numbers()->symbols()],
+            'password' => ['required', 'string', 'confirmed', Password::defaults()],
         ];
     }
+
     public function messages(): array
     {
         return [

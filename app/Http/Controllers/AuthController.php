@@ -1,79 +1,69 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
-use App\Http\Requests\LoginRequest;
-use App\Http\Requests\RegisterRequest;
-use Illuminate\Auth\Events\Registered;
-// use Illuminate\Foundation\Auth\User;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\RateLimiter;
-// use Illuminate\Validation\ValidationException;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\AuthManager;
+use App\Actions\Auth\RegisterUser;
+use Illuminate\Routing\Redirector;
+use App\Http\Requests\LoginRequest;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use App\Http\Requests\RegisterRequest;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\Routing\UrlGenerator;
 
-class AuthController extends Controller
+readonly class AuthController
 {
-    public function showLoginForm()
-    {
-        return view('auth.login');
+    public function __construct(
+        private AuthManager $auth,
+        private Redirector $redirector,
+        private UrlGenerator $url,
+        private Factory $view
+    ) {
     }
-    public function showRegistrationForm()
+
+    public function showLoginForm(): View
     {
-        return view('auth.register');
+        return $this->view->make('auth.login');
     }
-    public function login(LoginRequest $request)
+
+    public function showRegistrationForm(): View
     {
-        // $throttleKey = strtolower($request->input('email')) . '|' . $request->ip();
-        // $ipThrottleKey = 'login:' . $request->ip();
-        // $emailThrottleKey = 'login:' . $request->input('email');
-        // if (RateLimiter::tooManyAttempts($ipThrottleKey, 100)) {
-        //     throw ValidationException::withMessages(['email' => 'Too many login attempts. Please try agaun later.']);
-        // }
-        // if (RateLimiter::tooManyAttempts($emailThrottleKey, 5)) {
-        //     throw ValidationException::withMessages(['email' => 'Too many login attempts. Please try agaun later.']);
-        // }
-        if (Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+        return $this->view->make('auth.register');
+    }
+
+    public function login(LoginRequest $request): RedirectResponse
+    {
+        if ($this->auth->attempt($request->only('email', 'password'), $request->boolean('remember'))) {
             $request->session()->regenerate();
 
-            // RateLimiter::clear($ipThrottleKey);
-            // RateLimiter::clear($emailThrottleKey);
-
-            return redirect()->intended(route('dashboard'));
+            return $this->redirector->intended($this->url->route('dashboard', absolute: false));
         }
-        // RateLimiter::hit($ipThrottleKey);
-        // RateLimiter::hit($emailThrottleKey);
 
-        // throw ValidationException::withMessages(['email' => ]);
-        return back()
-        ->withErrors(['email' => 'These credentials do not match our records.'])
-        ->withInput($request->except('password'));
-        // return back()->withErrors(['email' => 'These credentials do not match our records']);
+        return $this->redirector->back()
+            ->withErrors(['email' => 'These credentials do not match our records.'])
+            ->withInput($request->except('password'));
     }
-    public function register(RegisterRequest $request)
+
+    public function register(RegisterRequest $request, RegisterUser $registerUser): RedirectResponse
     {
-        $validated = $request->validated();
+        $user = $registerUser->execute($request->validated());
 
-        $user = User::create(
-            [
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
-            ]
-        );
-        event(new Registered($user));
-        Auth::login($user);
+        $this->auth->login($user);
 
-        return redirect()->intended(route('dashboard'));
+        return $this->redirector->intended($this->url->route('dashboard', absolute: false));
     }
-    public function logout(Request $request)
+
+    public function logout(Request $request): RedirectResponse
     {
-        Auth::logout();
+        $this->auth->logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return $this->redirector->to('/');
     }
 }

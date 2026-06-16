@@ -1,7 +1,13 @@
 
-02:20 00
-
 https://www.youtube.com/watch?v=WbcVKeOE6Vk
+
+https://www.youtube.com/watch?v=xDSXfrw3JyQ
+
+01:02 00
+https://www.youtube.com/watch?v=0DxZlKfO4QY
+
+git
+https://github.com/ggelashvili/daily-task-tracker-laravel
 
 curl -s https://laravel.build/daily-task-tracker-laravel | bash
 
@@ -69,6 +75,88 @@ php artisan make:policy CategoryPolicy --model=Category
 php artisan make:resource CategoryResource
 
 php artisan make:resource CategoryCollection
+composer require laravel/boost --dev
+php artisan boost:install
+
+php artisan make:controller TaskController
+php artisan make:controller RecurringTaskController
+
+php artisan make:component Form/CategorySelect
+php artisan make:component Form/FrequencySelect
+php artisan make:component Form/MonthlyDay
+php artisan make:component Form/WeeklyDays
+php artisan make:component TextareaInput
+php artisan make:component DangerButton
+php artisan make:component Modal
+php artisan make:component SecondaryButton
+php artisan make:component SaveFormButton
+
+php artisan make:model RecurringTask -m
+php artisan make:resource TaskResource
+php artisan make:resource DateTimeResource
+php artisan make:resource RecurringTaskResource
+
+php artisan make:request DeleteProfileRequest
+php artisan make:request ProfileUpdateRequest
+php artisan make:request StoreRecurringTaskRequest
+php artisan make:request UpdatePasswordRequest
+php artisan make:request UpdateRecurringTaskRequest
+php artisan make:request UpdateTaskRequest
+
+php artisan make:controller ProfileController
+
+php artisan make:policy CategoryPolicy --model=Category
+php artisan make:policy RecurringTaskPolicy --model=RecurringTask
+php artisan make:policy TaskPolicy --model=Task
+php artisan make:command ArchiveExpiredRecurringTasks.php
+php artisan make:command GenerateRecurringTasks.php
+
+test
+php artisan tinker
+User::factory()->create()
+User::factory()->create([
+    'name' => 'olya',
+    'email' => 'o@o.com',
+    'password' => bcrypt('123'),
+]);
+Category::factory(5)->create();
+Category::factory(5)->create(['user_id' => 1]);
+RecurringTask::factory(3)->create(['user_id' => 1, 'category_id' => 1]);
+\App\Models\Task::factory()->create([
+    'user_id' => 1,
+    'category_id' => 1,
+]);
+php artisan db:seed
+
+composer require barryvdh/laravel-debugbar --dev
+php artisan make:migration add_cascade_null_on_delete_to_tasks_and_recurring_tasks_tables
+
+Cache::put('key', 'value', now()->addMinutes(60))
+$value = Cache::remember('key', now()->addMinutes(60), fn() => 1)  
+
+php artisan make:observer CategoryObserver --model=Category
+php artisan make:test Controllers/TaskControllerTest
+
+.\vendor\bin\pint
+./vendor/bin/phpunit
+php artisan test --compact
+php artisan test
+php artisan test --testuite=Feature
+php artisan test --testuite=Unit
+php artisan test tests/Feature/Controllers/TaskControllerTest.php
+php artisan test --filter=authenticated_user_can_view_tasks
+php artisan test --profile
+php artisan test --coverage
+php artisan make:test Enum/TaskFrequencyTest --unit
+php artisan make:test Services/CategoryCacheServiceTest --unit
+php artisan make:test Controllers/AuthControllerTest
+php artisan make:test Controllers/CategoryControllerTest
+php artisan make:test Controllers/DashboardControllerTest
+php artisan make:test Controllers/EmailVerificationControllerTest
+php artisan make:test Controllers/PasswordResetControllerTest
+php artisan make:test Controllers/ProfileControllerTest
+php artisan make:test Controllers/RecurringTaskControllerTest
+
 
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 

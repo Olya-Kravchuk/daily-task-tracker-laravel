@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Http\Requests\StoreCategoryRequest;
-use App\Http\Requests\UpdateCategoryRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\StoreCategoryRequest;
+use App\Http\Requests\UpdateCategoryRequest;
 
 class CategoryController extends Controller
 {
@@ -20,6 +22,7 @@ class CategoryController extends Controller
         // $categories = $user->categories()->latest()->paginate()->onEachSide(1)->toResourceCollection();
         // $categories = Category::paginate(10)->onEachSide(2);
         $categories = $user->categories()->latest()->paginate();
+
         return view('categories.index', ['categories' => $categories->toResourceCollection()->resolve(), 'links' => fn() => $categories->links()]);
     }
 
@@ -45,7 +48,8 @@ class CategoryController extends Controller
         // $category->user()->associate($request->user());
         // $category->save();
         $request->user()->categories()->create($categorieData);
-        return to_route('categories.index')->with('success', 'Category created successfully.');    
+
+        return to_route('categories.index')->with('success', 'Category created successfully.');
     }
 
     /**
@@ -68,6 +72,7 @@ class CategoryController extends Controller
     public function update(UpdateCategoryRequest $request, Category $category)
     {
         $category->update($request->validated());
+
         return to_route('categories.index')->with('success', 'Category updated successfully.');
     }
 
@@ -77,6 +82,7 @@ class CategoryController extends Controller
     public function destroy(Category $category)
     {
         $category->delete();
+
         return to_route('categories.index')->with('success', 'Category deleted successfully.');
     }
 }

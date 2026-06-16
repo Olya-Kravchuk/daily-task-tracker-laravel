@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 class EmailVerificationController extends Controller
 {
@@ -17,11 +19,14 @@ class EmailVerificationController extends Controller
 
         return view('auth.verify-email');
     }
+
     public function verify(EmailVerificationRequest $request)
     {
         $request->fulfill();
+
         return redirect()->intended(route('dashboard'));
     }
+
     // public function resend(Request $request)
     // {
     //     if ($request->user()->hasVerifiedEmail()) {
@@ -33,7 +38,7 @@ class EmailVerificationController extends Controller
     public function resend(Request $request): RedirectResponse
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login');
         }
 

@@ -1,17 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\PasswordResetController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RecurringTaskController;
+use App\Http\Controllers\EmailVerificationController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', fn() => view('welcome'));
 
-Route::middleware('guest')->group(function() {
+Route::middleware('guest')->group(function(): void {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post')->middleware('throttle:login');
     Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
@@ -24,17 +27,39 @@ Route::middleware('guest')->group(function() {
     Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->middleware('throttle:password-reset')->name('password.store');
 });
 
-Route::middleware(['auth'])->group(function() {
+Route::middleware(['auth'])->group(function(): void {
     Route::get('/email/verify', [EmailVerificationController::class, 'index'])->name('verification.notice');
     Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->middleware('signed', 'throttle:10,1')->name('verification.verify');
     Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])->middleware(['auth'])->name('verification.send');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
-Route::middleware(['auth', 'verified'])->group(function() {
-    
+Route::middleware(['auth', 'verified'])->group(function(): void {
+
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::resource('categories', CategoryController::class)->except(['show'])->middlewareFor(['edit', 'updated', 'destroy'], 'can:manage,category');
+    // Route::resource('categories', CategoryController::class)->except(['show'])->middlewareFor(['edit', 'updated', 'destroy'], 'can:manage,category');
+    Route::resource('categories', CategoryController::class)
+        ->except(['show'])
+        ->middlewareFor(['edit', 'updated', 'destroy'], 'can:manage,category');
+
+    Route::resource('tasks', TaskController::class)
+        ->except(['show'])
+        ->middlewareFor(['edit', 'update', 'destroy'], 'can:manage,task');
+
+    Route::patch('/tasks/{task}/toggle-completion', [TaskController::class, 'toggleCompletion'])
+        ->name('tasks.toggle-completion')
+        ->middleware('can:manage,task');
+
+    Route::resource('recurring-tasks', RecurringTaskController::class)
+        ->except(['show'])
+        ->middlewareFor(['edit', 'update', 'destroy'], 'can:manage,recurring_task');
 
     Route::redirect('/', '/dashboard');
+});
+
+Route::middleware(['auth'])->group(function(): void {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
 });

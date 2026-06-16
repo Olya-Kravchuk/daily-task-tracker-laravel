@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\ValidationRule;
 
 class LoginRequest extends FormRequest
 {
@@ -17,7 +20,7 @@ class LoginRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -27,9 +30,10 @@ class LoginRequest extends FormRequest
             'remember' => ['nullable', 'boolean'],
         ];
     }
+
     public function messages(): array
     {
-        return 
+        return
         [
             'email.required' => 'aaa',
             'email.email' => 'bbb',
